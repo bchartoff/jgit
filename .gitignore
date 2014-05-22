@@ -1,0 +1,5 @@
+config.js
+
+*.pyc
+
+.DS_Store
