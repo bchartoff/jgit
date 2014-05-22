@@ -64,6 +64,7 @@ App.prototype.listen = function() {
   //not full RESTfull API, since it is exposed. GET method, POST is in apps/admin.
   //this.app.get('/url=:url', routes.img(this.db));
   this.app.get('/create/:message/:content/*', routes.create_file(user));
+  this.app.get('/update/:message/:content/*', routes.update_file(user));
   //this.app.get('/create', routes.create_file(user));
 }
 

@@ -19,41 +19,49 @@ var utils = require('../utils')
 
 
 exports.create_file = function(user){
-
   return function(req,res){
-      var params = req.params;
-      var path = params[0];
-      var message = decodeURIComponent(params.message);
-      var content = base64.encode(decodeURIComponent(params.content));
+    var params = req.params;
+    var path = params[0];
+    var message = decodeURIComponent(params.message);
+    var content = base64.encode(decodeURIComponent(params.content));
 
-	  var options = contents_api_options(user,path,'PUT');
-	  var msg = contents_api_message(user,message,content);
+    var options = contents_api_options(user,path,'PUT');
+    var msg = contents_api_message(user,message,content);
 
-	  make_request(options, msg);
-    }
+    make_request(options, msg);
+  }
 }
 
 exports.update_file = function(user){
-  var options = contents_api_options(user,path,'GET');
-  var req = https.request(options, function(res) {
-    var body = "";
-    res.on('data', function (chunk) {
-      body += chunk;
+  return function(outer_req,outer_res){
+    var params = outer_req.params;
+    var path = params[0];
+    var message = decodeURIComponent(params.message);
+    var content = base64.encode(decodeURIComponent(params.content));
+
+    var options = contents_api_options(user,path,'GET');
+    var req = https.request(options, function(res) {
+
+      var body = "";
+
+      res.on('data', function (chunk) {
+        body += chunk;
+      });
+
+      req.on('error', function(e) {
+        console.error(e);
+      });
+
+      res.on( 'end' , function() {
+        var sha = ( JSON.parse(body).sha );
+        var options = contents_api_options(user,path,'PUT');
+        var msg = contents_api_message(user,message,content,{"sha":sha})
+        make_request(options,msg)
+      });
     });
 
-    req.on('error', function(e) {
-      console.error(e);
-    });
-
-    res.on( 'end' , function() {
-      var sha = ( JSON.parse(body).sha );
-      var options = contents_api_options(user,path,'PUT');
-      var msg = contents_api_message(user,message,content,{"sha":sha})
-      make_request(options,msg)
-    });
-  });
-
-  req.end();
+    req.end();
+  }
 }
 
 
