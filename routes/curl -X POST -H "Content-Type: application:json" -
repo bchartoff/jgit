@@ -1,0 +1,3 @@
+curl -X POST -H "Content-Type: application/json" -d '{"cms":"wordpress","message":"new api test","content":"this is a new file"}' http://localhost:3000/contents/create/2014/6/3/newfile.txt
+
+curl -X POST -H "Content-Type: application/json" -d '{"cms":"wordpress","message":"new api test","content":"this was a new file"}' http://localhost:3000/update/create/2014/6/3/newfile.txt

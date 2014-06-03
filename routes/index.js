@@ -1,3 +1,9 @@
+//get request to commits/sha
+//post request to commits/sha (puts)
+
+//
+
+
 
 /*
  * GET home page.
@@ -21,11 +27,15 @@ var utils = require('../utils')
 exports.create_file = function(user){
   return function(req,res){
     var params = req.params;
-    var path = params[0];
-    var message = decodeURIComponent(params.message);
-    var content = base64.encode(decodeURIComponent(params.content));
+    var body = req.body;
+    var cms = body.cms;
+    var post_path = params[0];
+    var message = body.message;
+    var content = base64.encode(body.content);
 
-    var options = contents_api_options(user,path,'PUT');
+    var full_path = path.join('content',cms, post_path);
+
+    var options = contents_api_options(user,full_path,'PUT');
     var msg = contents_api_message(user,message,content);
 
     make_request(options, msg);
@@ -35,11 +45,15 @@ exports.create_file = function(user){
 exports.update_file = function(user){
   return function(outer_req,outer_res){
     var params = outer_req.params;
-    var path = params[0];
-    var message = decodeURIComponent(params.message);
-    var content = base64.encode(decodeURIComponent(params.content));
+    var body = outer_req.body;
+    var post_path = params[0];
+    var cms = body.cms;
+    var message = body.message;
+    var content = base64.encode(body.content);
 
-    var options = contents_api_options(user,path,'GET');
+    var full_path = path.join('content',cms, post_path);
+
+    var options = contents_api_options(user,full_path,'GET');
     var req = https.request(options, function(res) {
 
       var body = "";
@@ -54,7 +68,7 @@ exports.update_file = function(user){
 
       res.on( 'end' , function() {
         var sha = ( JSON.parse(body).sha );
-        var options = contents_api_options(user,path,'PUT');
+        var options = contents_api_options(user,full_path,'PUT');
         var msg = contents_api_message(user,message,content,{"sha":sha})
         make_request(options,msg)
       });
