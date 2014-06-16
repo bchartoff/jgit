@@ -28,6 +28,11 @@
     /**
  * Adds a box to the main column on the Post and Page edit screens.
  */
+
+
+
+
+
 function add_commit_message_meta_box() {
 
 	$screens = array( 'post', 'page' );
@@ -118,8 +123,8 @@ function jgit_save_meta_box_data( $post_id ) {
 	$my_data = sanitize_text_field( $_POST['jgit_commit'] );
 
 
-	$url = "http://7c967551.ngrok.com/contents/update/file.txt" . get_path_by_post_id( $post_id );
-	debug_to_console( get_sample_permalink() );
+	// $url = "http://7c967551.ngrok.com/contents/update" . get_path_by_post_id( $post_id ) . "index.html";
+	// debug_to_console( get_path_by_post_id( $post_id ) );
 	
 
 
@@ -128,8 +133,10 @@ function jgit_save_meta_box_data( $post_id ) {
 		'blocking' => true,
 		'body' => array( 		
 				'cms' => 'wordpress',
+				'published' => false,
 				'message' => $my_data,
-				'content' => get_permalink( $post_id )//get_content_by_post_id( $post_id )
+				'content' => get_content_by_post_id( $post_id ),
+				'branch' => "bchartoff_dot_com_drafts"
 				)
     	)
 	);
@@ -189,15 +196,37 @@ function get_content_by_post_id( $post_id ){
 	return $content;
 
 }
+
+
+/**
+ * For published posts, returns post path, for unpublished, returns `slug/ID/`
+ * in middle ware, github path structure set to `cms/publication_status/path/
+ * @param int $post_id The ID of the post being saved.
+**/
+
+function get_path_by_post_id ( $post_id ){
+	$path_post = get_post( $post_id );
+	if (in_array($path_post->post_status, array('draft', 'pending', 'auto-draft', 'pitch'))) {
+	    // $cloned_post = clone $path_post;
+	    // $cloned_post->post_status = 'publish';
+	    //wp_update_post($cloned_post);
+	    //$cloned_post->post_name = sanitize_title($cloned_post->post_name ? $cloned_post->post_name : $cloned_post->post_title, $cloned_post->ID);
+	    return  '/' . $post_id . '/' .  $path_post->post_name;
+	} else {
+	    return str_replace(home_url(), '', get_permalink( $post_id ) );//get_permalink($cloned_post->ID);
+	}
+}
+
+
 /**
  * Get relative path from a post_id
  * @param int $post_id The ID of the post being saved.
 **/
-function get_path_by_post_id( $post_id ){
-	$content_post = get_post($post_id);
-	$url = $content_post->post_name;
-	return $url;
-}
+// function get_path_by_post_id( $post_id ){
+// 	$content_post = get_post($post_id);
+// 	$url = $content_post->post_name;
+// 	return $url;
+// }
 
 
 
